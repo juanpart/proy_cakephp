@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\I18n\FrozenTime;
+
 /**
  * Libros Controller
  *
@@ -48,13 +50,32 @@ class LibrosController extends AppController
     {
         $libro = $this->Libros->newEmptyEntity();
         if ($this->request->is('post')) {
+
             $libro = $this->Libros->patchEntity($libro, $this->request->getData());
+
+            //agregar imagen del libro
+            $imagen = $this->request->getData('imagen');
+
+            if ($imagen) {
+
+                $tiempo = FrozenTime::now()->toUnixString();
+                
+                $nombreImagen = $tiempo."_".$imagen->getClientFileName();
+                $destino = WWW_ROOT.'img/Libros'.$nombreImagen;
+                $imagen->moveTo($destino);
+                $libro->imagen = $nombreImagen;
+
+            }
+
+
+
             if ($this->Libros->save($libro)) {
                 $this->Flash->success(__('The libro has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The libro could not be saved. Please, try again.'));
+
         }
         $this->set(compact('libro'));
     }
@@ -94,6 +115,13 @@ class LibrosController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $libro = $this->Libros->get($id);
+
+        if (file_exists(WWW_ROOT.'img/Libros'.$libro['imagen'])) {
+            
+            unlink(WWW_ROOT.'img/Libros'.$libro['imagen']);
+            
+        }
+
         if ($this->Libros->delete($libro)) {
             $this->Flash->success(__('The libro has been deleted.'));
         } else {
