@@ -20,7 +20,7 @@ class LibrosController extends AppController
      */
     public function index()
     {
-        $libros = $this->paginate($this->Libros);
+        $libros = $this->paginate($this->Libros, ['limit' => 2]);
 
         $this->set(compact('libros'));
     }
@@ -59,7 +59,7 @@ class LibrosController extends AppController
             if ($imagen) {
                 $tiempo = FrozenTime::now()->toUnixString();
                 $nombreImagen = $tiempo."_".$imagen->getClientFileName();
-                $destino = WWW_ROOT.'img/Libros'.$nombreImagen;
+                $destino = WWW_ROOT.'img/Libros/'.$nombreImagen;
                 $imagen->moveTo($destino);
                 $libro->imagen = $nombreImagen;
             }
@@ -101,13 +101,13 @@ class LibrosController extends AppController
 
             if ($imagen->getClientFilename()) {
 
-                if (file_exists(WWW_ROOT.'img/Libros'.$nombreImagenAnterior)) {
-                    unlink(WWW_ROOT.'img/Libros'.$nombreImagenAnterior);
+                if (file_exists(WWW_ROOT.'img/Libros/'.$nombreImagenAnterior)) {
+                    unlink(WWW_ROOT.'img/Libros/'.$nombreImagenAnterior);
                 }
                 if ($imagen) {
                     $tiempo = FrozenTime::now()->toUnixString();
                     $nombreImagen = $tiempo."_".$imagen->getClientFileName();
-                    $destino = WWW_ROOT.'img/Libros'.$nombreImagen;
+                    $destino = WWW_ROOT.'img/Libros/'.$nombreImagen;
                     $imagen->moveTo($destino);
                     $libro->imagen = $nombreImagen;   
                 }
@@ -136,9 +136,9 @@ class LibrosController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $libro = $this->Libros->get($id);
 
-        if (file_exists(WWW_ROOT.'img/Libros'.$libro['imagen'])) {
+        if (file_exists(WWW_ROOT.'img/Libros/'.$libro['imagen'])) {
             
-            unlink(WWW_ROOT.'img/Libros'.$libro['imagen']);
+            unlink(WWW_ROOT.'img/Libros/'.$libro['imagen']);
             
         }
 
