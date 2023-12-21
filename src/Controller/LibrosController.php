@@ -57,14 +57,11 @@ class LibrosController extends AppController
             $imagen = $this->request->getData('imagen');
 
             if ($imagen) {
-
                 $tiempo = FrozenTime::now()->toUnixString();
-                
                 $nombreImagen = $tiempo."_".$imagen->getClientFileName();
                 $destino = WWW_ROOT.'img/Libros'.$nombreImagen;
                 $imagen->moveTo($destino);
                 $libro->imagen = $nombreImagen;
-
             }
 
 
@@ -93,7 +90,30 @@ class LibrosController extends AppController
             'contain' => [],
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
+
+            $nombreImagenAnterior = $libro->imagen;
+
             $libro = $this->Libros->patchEntity($libro, $this->request->getData());
+
+            $imagen = $this->request->getData('imagen');
+
+            $libro->imagen = $nombreImagenAnterior;
+
+            if ($imagen->getClientFilename()) {
+
+                if (file_exists(WWW_ROOT.'img/Libros'.$nombreImagenAnterior)) {
+                    unlink(WWW_ROOT.'img/Libros'.$nombreImagenAnterior);
+                }
+                if ($imagen) {
+                    $tiempo = FrozenTime::now()->toUnixString();
+                    $nombreImagen = $tiempo."_".$imagen->getClientFileName();
+                    $destino = WWW_ROOT.'img/Libros'.$nombreImagen;
+                    $imagen->moveTo($destino);
+                    $libro->imagen = $nombreImagen;   
+                }
+            }
+
+
             if ($this->Libros->save($libro)) {
                 $this->Flash->success(__('The libro has been saved.'));
 
